@@ -277,11 +277,7 @@ class Unmarshaller(ErrorStore):
                         (partial_is_collection and attr_name in partial)
                     ):
                         continue
-                    _miss = field_obj.missing
-                    raw_value = _miss() if callable(_miss) else _miss
-                if raw_value is missing and not field_obj.required:
-                    continue
-
+                print("marsh", field_name, raw_value)
                 getter = lambda val: field_obj.deserialize(val, field_name, data)
                 value = self.call_and_store(
                     getter_func=getter,
@@ -290,6 +286,8 @@ class Unmarshaller(ErrorStore):
                     field_obj=field_obj,
                     index=(index if index_errors else None)
                 )
+                #if value is missing and not field_obj.required:
+                #    continue
                 if value is not missing:
                     key = fields_dict[attr_name].attribute or attr_name
                     set_value(ret, key, value)

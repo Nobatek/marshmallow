@@ -1785,7 +1785,7 @@ class TestNestedSchema:
                                               'inner_req': ['Oops']}},
                            'middle_req_2': {'inner_bad': ['Int plz'],
                                             'inner_req': ['Oops']}}}
-        data, errors = outer.load({})
+        data, errors = outer.load({'outer_req': {'middle_req_2': {}, 'middle_many_req': []}, 'outer_many_req': []})
         assert errors == expected
 
     def test_dump_validation_error(self):
@@ -1915,7 +1915,8 @@ class TestSelfReference:
         class DeepSchema(Schema):
             basic = fields.Nested(BasicSchema(), required=True)
 
-        data, errors = DeepSchema().load({})
+        # TODO: breaking change!
+        data, errors = DeepSchema().load({'basic': {}})
         assert data == {}
 
         assert errors == {

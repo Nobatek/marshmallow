@@ -222,10 +222,9 @@ class Field(FieldABC):
         `value` should be considered missing.
         """
         if value is missing_:
-            if hasattr(self, 'required') and self.required:
+            if self.required:
                 self.fail('required')
-        if value is None:
-            if hasattr(self, 'allow_none') and self.allow_none is not True:
+        if value is None and self.allow_none is not True:
                 self.fail('null')
 
     def serialize(self, attr, obj, accessor=None):
@@ -257,11 +256,29 @@ class Field(FieldABC):
         """
         # Validate required fields, deserialize, then validate
         # deserialized value
-        self._validate_missing(value)
-        if getattr(self, 'allow_none', False) is True and value is None:
-            return None
-        output = self._deserialize(value, attr, data)
-        self._validate(output)
+        #self._validate_missing(value)
+        print(1)
+        if value is None:
+            if self.allow_none is True:
+                return None
+            else:
+                self.fail('null')
+        print(2)
+        if value is missing_:
+            print(2.1)
+            value = self.missing() if callable(self.missing) else self.missing
+            print(2.2)
+            if value is missing_ and self.required:
+                print(2.3)
+                self.fail('required')
+            output = value
+            print(3)
+        else:
+            output = self._deserialize(value, attr, data)
+            print(4)
+        if value is not missing_:
+            self._validate(output)
+        print(5)
         return output
 
     # Methods for concrete classes to override.
